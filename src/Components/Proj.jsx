@@ -1,6 +1,6 @@
 import React, { Suspense, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, useGLTF, Stage } from "@react-three/drei";
+import { OrbitControls, useGLTF, Stage, useProgress } from "@react-three/drei";
 import '../assets/Style/style.css';
 
 function Dragon() {
@@ -8,9 +8,23 @@ function Dragon() {
   return <primitive object={scene} scale={1} />;
 }
 
+// Dragon load progress track pannradhu, 100% aana udane parent ku solrathu
+function Loader({ onLoaded }) {
+  const { progress } = useProgress();
+
+  React.useEffect(() => {
+    if (progress === 100) {
+      onLoaded();
+    }
+  }, [progress, onLoaded]);
+
+  return null;
+}
+
 function Proj() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [dragonLoaded, setDragonLoaded] = useState(false);
 
   const handleSignup = () => {
     if (email.trim() === "" || password.trim() === "") {
@@ -25,7 +39,7 @@ function Proj() {
   return (
     <div className="viewer-container">
       <Canvas camera={{ position: [0, 1, 5], fov: 50 }}>
-        <Suspense fallback={null}>
+        <Suspense fallback={<Loader onLoaded={() => setDragonLoaded(true)} />}>
           <Stage environment="city" intensity={0.6}>
             <Dragon />
           </Stage>
@@ -33,34 +47,36 @@ function Proj() {
         <OrbitControls autoRotate autoRotateSpeed={0.8} />
       </Canvas>
 
-      <div className="card-container">
-        <div className="card-content">
-          <h1>Register Now</h1>
-          <div className="form">
-            <label>Email</label>
-            <input
-              type="email"
-              className="input1"
-              placeholder="you@gmail.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            /> 
-            <label>Password</label>
-            <input
-              type="password"
-              className="input1"
-              placeholder="********"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <div className="btn">
-              <button type="button" className="btn-primary" onClick={handleSignup}>
-                Signup Now
-              </button>
+      {dragonLoaded && (
+        <div className="card-container fade-in">
+          <div className="card-content">
+            <h1>Register Now</h1>
+            <div className="form">
+              <label>Email</label>
+              <input
+                type="email"
+                className="input1"
+                placeholder="you@gmail.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              /> 
+              <label>Password</label>
+              <input
+                type="password"
+                className="input1"
+                placeholder="********"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <div className="btn">
+                <button type="button" className="btn-primary" onClick={handleSignup}>
+                  Signup Now
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
